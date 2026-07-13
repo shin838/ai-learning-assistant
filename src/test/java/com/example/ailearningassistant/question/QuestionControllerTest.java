@@ -56,7 +56,8 @@ class QuestionControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(view().name("result"))
 			.andExpect(content().string(containsString("생성된 객관식 문제")))
-			.andExpect(content().string(containsString("Java 21 문제입니다.")));
+			.andExpect(content().string(containsString("Java 21 문제입니다.")))
+			.andExpect(content().string(containsString("정답/해설 보기")));
 
 		verify(questionGenerationService).generate(new QuestionGenerationRequest("Java 21"));
 	}

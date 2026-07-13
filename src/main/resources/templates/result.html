@@ -19,8 +19,11 @@
 			<ol class="choices">
 				<li th:each="choice : ${question.choices()}" th:text="${choice}">보기</li>
 			</ol>
-			<p class="answer">정답: <span th:text="${question.answerNumber()}">1</span>번</p>
-			<p class="explanation" th:text="${question.explanation()}">해설</p>
+			<details class="answer-panel">
+				<summary>정답/해설 보기</summary>
+				<p class="answer">정답: <span th:text="${question.answerNumber()}">1</span>번</p>
+				<p class="explanation" th:text="${question.explanation()}">해설</p>
+			</details>
 		</li>
 	</ol>
 
