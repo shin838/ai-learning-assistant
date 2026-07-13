@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>생성된 문제 - AI Learning Assistant</title>
+	<style>
+		body {
+			margin: 0;
+			font-family: Arial, sans-serif;
+			background: #f5f7fb;
+			color: #1f2937;
+		}
+
+		main {
+			width: min(980px, calc(100% - 32px));
+			margin: 48px auto;
+		}
+
+		header {
+			margin-bottom: 28px;
+		}
+
+		h1 {
+			margin: 0 0 8px;
+			font-size: 32px;
+		}
+
+		.scope {
+			margin: 0;
+			color: #4b5563;
+			line-height: 1.6;
+		}
+
+		.question-list {
+			display: grid;
+			gap: 18px;
+			margin: 0 0 28px;
+			padding: 0;
+			list-style: none;
+		}
+
+		.question {
+			padding: 24px;
+			border: 1px solid #d8dee9;
+			border-radius: 8px;
+			background: #ffffff;
+		}
+
+		.question h2 {
+			margin: 0 0 16px;
+			font-size: 20px;
+			line-height: 1.4;
+		}
+
+		.choices {
+			display: grid;
+			gap: 8px;
+			margin: 0 0 16px;
+			padding-left: 24px;
+		}
+
+		.answer,
+		.explanation {
+			margin: 8px 0 0;
+			color: #374151;
+			line-height: 1.5;
+		}
+
+		a {
+			display: inline-block;
+			padding: 12px 18px;
+			border-radius: 6px;
+			background: #2563eb;
+			color: #ffffff;
+			text-decoration: none;
+			font-weight: 700;
+		}
+
+		a:hover {
+			background: #1d4ed8;
+		}
+	</style>
+</head>
+<body>
+<main>
+	<header>
+		<h1>생성된 객관식 문제</h1>
+		<p class="scope">시험 범위: <span th:text="${result.examScope()}">Java</span></p>
+	</header>
+
+	<ol class="question-list">
+		<li class="question" th:each="question : ${result.questions()}">
+			<h2 th:text="${question.number()} + '. ' + ${question.content()}">1. 문제 내용</h2>
+			<ol class="choices">
+				<li th:each="choice : ${question.choices()}" th:text="${choice}">보기</li>
+			</ol>
+			<p class="answer">정답: <span th:text="${question.answerNumber()}">1</span>번</p>
+			<p class="explanation" th:text="${question.explanation()}">해설</p>
+		</li>
+	</ol>
+
+	<a href="/">다시 생성하기</a>
+</main>
+</body>
+</html>
