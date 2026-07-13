@@ -1,7 +1,5 @@
 package com.example.ailearningassistant.question;
 
-import com.example.ailearningassistant.openai.OpenAiApiException;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -31,15 +29,8 @@ public class QuestionController {
 			return "index";
 		}
 
-		try {
-			QuestionGenerationResult result = questionGenerationService.generate(new QuestionGenerationRequest(examScope));
-			model.addAttribute("result", result);
-			return "result";
-		}
-		catch (OpenAiApiException exception) {
-			model.addAttribute("errorMessage", exception.getMessage());
-			model.addAttribute("examScope", examScope);
-			return "index";
-		}
+		QuestionGenerationResult result = questionGenerationService.generate(new QuestionGenerationRequest(examScope));
+		model.addAttribute("result", result);
+		return "result";
 	}
 }

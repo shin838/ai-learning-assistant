@@ -1,6 +1,8 @@
 package com.example.ailearningassistant.openai;
 
-public class OpenAiApiException extends RuntimeException {
+import com.example.ailearningassistant.question.AiQuestionClientException;
+
+public class OpenAiApiException extends AiQuestionClientException {
 
 	public OpenAiApiException(String message) {
 		super(message);

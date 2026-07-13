@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -14,11 +15,13 @@ import java.util.List;
 import com.example.ailearningassistant.openai.OpenAiApiException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(QuestionController.class)
+@Import(QuestionGenerationExceptionHandler.class)
 class QuestionControllerTest {
 
 	@Autowired
@@ -85,7 +88,8 @@ class QuestionControllerTest {
 				.param("examScope", "Java 21"))
 			.andExpect(status().isOk())
 			.andExpect(view().name("index"))
-			.andExpect(content().string(containsString("OpenAI API 키가 설정되지 않았습니다.")));
+			.andExpect(content().string(containsString("OpenAI API 키가 설정되지 않았습니다.")))
+			.andExpect(model().attribute("examScope", "Java 21"));
 	}
 
 	@Test
