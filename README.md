@@ -77,6 +77,41 @@ OPENAI_MODEL=gpt-5-mini
 BUILD SUCCESSFUL
 ```
 
+## 문제 해결
+
+### OpenAI API 키가 설정되지 않았습니다
+
+`openai` 모드로 실행했지만 `OPENAI_API_KEY`가 전달되지 않은 상태입니다.
+
+터미널에서는 같은 창에서 아래처럼 실행합니다.
+
+```bash
+AI_PROVIDER=openai OPENAI_API_KEY=본인_API_키 OPENAI_MODEL=gpt-5-mini ./gradlew bootRun
+```
+
+STS에서는 Run Configuration의 `Environment` 탭에 `AI_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_MODEL`을 추가한 뒤 다시 실행합니다.
+
+### insufficient_quota 오류
+
+아래와 같은 응답은 코드 오류가 아니라 OpenAI API 계정의 결제/쿼터 문제입니다.
+
+```text
+429 TOO_MANY_REQUESTS
+code: insufficient_quota
+```
+
+OpenAI Platform에서 Billing과 Usage Limits를 확인해야 합니다. ChatGPT 구독과 OpenAI API 사용량은 별도입니다.
+
+### API 키 없이 개발하고 싶을 때
+
+기본값인 `dummy` 모드로 실행합니다.
+
+```bash
+./gradlew bootRun
+```
+
+이 모드는 OpenAI API를 호출하지 않고 예시 문제 10개를 생성합니다.
+
 ## 주요 URL
 
 ```text
