@@ -1,6 +1,20 @@
 # AI Learning Assistant
 
-시험 범위를 입력하면 객관식 문제 10개를 생성하는 Spring Boot + Thymeleaf 웹 애플리케이션입니다.
+LG유플러스 유레카 교육과정에서 학습한 내용을 복습하고, 매 챕터마다 진행되는 시험을 대비하기 위해 만든 Spring Boot + Thymeleaf 기반 학습 보조 웹 애플리케이션입니다.
+
+사용자가 브라우저에서 시험 범위를 입력하면 객관식 문제 10개를 생성하고, 각 문제의 보기, 정답, 해설을 확인할 수 있습니다.
+
+## 프로젝트를 만든 이유
+
+LG유플러스 유레카 교육과정에서는 Java, Spring Boot 등 여러 개념을 빠르게 학습하고, 각 챕터가 끝날 때마다 시험을 보게 됩니다.
+
+시험 전에는 다음과 같은 어려움이 있었습니다.
+
+- 시험 범위를 기준으로 예상 문제를 직접 만들기 번거롭다.
+- 개념을 읽기만 하면 제대로 이해했는지 확인하기 어렵다.
+- 객관식 문제를 풀면서 복습하면 부족한 부분을 더 쉽게 찾을 수 있다.
+
+그래서 시험 범위만 입력하면 AI가 예상 문제를 생성해 스스로 이해도를 점검할 수 있는 학습 도우미를 만들었습니다.
 
 ## 기술 스택
 
@@ -9,53 +23,114 @@
 - Gradle
 - Thymeleaf
 - Lombok
+- OpenAI Responses API
+- HTML / CSS
 
-DB, JPA, Security는 현재 사용하지 않습니다.
+별도의 React 프론트엔드나 데이터베이스 없이, Spring Boot와 Thymeleaf만 사용해 화면과 서버 로직을 함께 구현했습니다.
 
-## 실행 모드
+## 주요 기능
 
-기본 실행 모드는 `dummy`입니다.
+- 시험 범위 입력
+- 객관식 문제 10개 생성
+- 각 문제별 보기 4개 표시
+- 정답 및 해설 확인
+- 정답/해설 접기 기능
+- 입력값 검증
+- API Key 없이 동작하는 dummy 모드
+- Dummy/OpenAI Provider 선택 구조
+
+## 화면
+
+추후 아래 화면 캡처를 추가할 예정
+
+- 메인 화면
+- 문제 생성 결과 화면
+
+## 프로젝트 구조
+
+```text
+src/main/java/com/example/ailearningassistant
+ ├── home      # 메인 화면 요청 처리
+ ├── question  # 문제 생성 요청, 검증, 서비스, 더미 Provider
+ ├── openai    # OpenAI Provider, API 요청, 응답 파싱
+ └── health    # 서버 상태 확인 API
+
+src/main/resources
+ ├── templates # Thymeleaf 화면
+ └── static    # CSS 등 정적 파일
+```
+
+문제 생성 기능은 `AiQuestionClient` 인터페이스를 기준으로 분리했습니다.
+
+```text
+QuestionController
+ → QuestionGenerationService
+ → AiQuestionClient
+     → DummyQuestionClient
+     → OpenAiQuestionClient
+```
+
+이 구조 덕분에 Controller와 Service는 실제로 어떤 AI Provider를 사용하는지 알 필요가 없습니다. 나중에 Gemini, Claude, Ollama 같은 다른 LLM을 사용하고 싶다면 새로운 Client 클래스를 추가하는 방식으로 확장할 수 있습니다.
+
+## AI와 함께 개발한 과정
+
+AI를 활용해 빠르게 프로토타입을 구현한 뒤, 생성된 코드를 그대로 사용하는 대신 프로젝트 구조와 역할을 이해하며 반복적으로 개선하는 방식으로 개발했습니다.
+
+기능을 작은 단위로 나누어 AI에게 구현을 요청하고, 생성된 코드를 실행·검증하면서 프로젝트 구조를 분석하며 반복적으로 개선했습니다.
+
+진행 과정은 다음과 같습니다.
+
+1. Spring Boot 프로젝트 기본 구조 생성
+2. Thymeleaf 기반 입력 화면 구현
+3. 문제 생성 Controller와 Service 분리
+4. dummy 모드로 문제 생성 기능 구현
+5. 결과 화면과 정답/해설 접기 기능 구현
+6. OpenAI Provider 구조 추가
+7. 입력값 검증, 예외 처리, 테스트 코드 작성
+8. README와 실행 방법 정리
+
+## Dummy Provider를 추가한 이유
+
+현재는 `dummy` 모드를 기본 실행 모드로 사용합니다.
 
 ```properties
 ai.provider=${AI_PROVIDER:dummy}
 ```
 
-### dummy 모드
+개발 과정에서 외부 API에만 의존하면 기능 구현과 테스트가 어려울 수 있기 때문에, API Key 없이도 동일한 흐름을 테스트할 수 있도록 Dummy Provider를 함께 구현했습니다.
 
-OpenAI API 키 없이 개발할 수 있는 모드입니다.
+이를 통해 AI Provider를 교체하거나 실제 API를 사용할 수 없는 환경에서도 동일한 Controller와 Service를 유지한 채 개발을 계속할 수 있도록 구성했습니다.
+
+OpenAI API quota가 부족하면 다음과 같은 오류가 발생할 수 있습니다.
+
+```text
+429 TOO_MANY_REQUESTS
+code: insufficient_quota
+```
+
+이 경우 코드 문제가 아니라 OpenAI 계정의 API 사용 가능량 또는 결제 설정 문제입니다.
+
+## 실행 방법
+
+기본 실행은 API Key가 필요 없는 `dummy` 모드입니다.
 
 ```bash
 ./gradlew bootRun
 ```
 
-브라우저에서 접속합니다.
+브라우저에서 아래 주소로 접속합니다.
 
 ```text
 http://localhost:8080
 ```
 
-시험 범위를 입력하고 `문제 생성` 버튼을 누르면 예시 객관식 문제 10개가 표시됩니다.
-
-### openai 모드
-
-OpenAI API를 실제로 호출하는 모드입니다.
+OpenAI 모드를 사용하려면 환경변수를 설정한 뒤 실행합니다.
 
 ```bash
 AI_PROVIDER=openai OPENAI_API_KEY=본인_API_키 OPENAI_MODEL=gpt-5-mini ./gradlew bootRun
 ```
 
-주의사항:
-
-- API 키는 `sk-...` 또는 `sk-proj-...` 형태입니다.
-- API 키를 채팅, 코드, Git 커밋에 남기지 마세요.
-- ChatGPT 구독과 OpenAI API 결제/쿼터는 별도입니다.
-- `insufficient_quota` 오류가 나오면 OpenAI Platform의 Billing과 Usage Limits를 확인해야 합니다.
-
-## STS에서 실행하기
-
-dummy 모드는 별도 환경변수 없이 실행하면 됩니다.
-
-openai 모드를 사용하려면 STS Run Configuration의 `Environment` 탭에 아래 값을 추가합니다.
+STS에서는 Run Configuration의 `Environment` 탭에 아래 값을 추가하면 됩니다.
 
 ```text
 AI_PROVIDER=openai
@@ -63,68 +138,23 @@ OPENAI_API_KEY=본인_API_키
 OPENAI_MODEL=gpt-5-mini
 ```
 
-그 다음 `AiLearningAssistantApplication`을 실행합니다.
-
 ## 테스트
 
 ```bash
 ./gradlew test
 ```
 
-성공 기준:
+## 프로젝트를 통해 배운 점
 
-```text
-BUILD SUCCESSFUL
-```
+- AI에게 원하는 결과를 얻기 위해서는 기능을 작은 단위로 나누고 요구사항을 구체적으로 전달하는 것이 중요하다는 것을 경험했습니다.
+- 생성된 코드를 그대로 사용하는 것이 아니라, 구조를 이해하고 검증하는 과정이 필요하다는 것을 배웠습니다.
+- 특정 AI(OpenAI)에 의존하지 않도록 인터페이스를 활용해 Provider를 분리하는 구조를 설계해 보았습니다.
+- Spring Boot에서 Controller, Service, Provider의 역할을 나누면 기능 변경과 테스트가 쉬워진다는 것을 알게 되었습니다.
 
-## 문제 해결
+## 앞으로 개선할 부분
 
-### OpenAI API 키가 설정되지 않았습니다
-
-`openai` 모드로 실행했지만 `OPENAI_API_KEY`가 전달되지 않은 상태입니다.
-
-터미널에서는 같은 창에서 아래처럼 실행합니다.
-
-```bash
-AI_PROVIDER=openai OPENAI_API_KEY=본인_API_키 OPENAI_MODEL=gpt-5-mini ./gradlew bootRun
-```
-
-STS에서는 Run Configuration의 `Environment` 탭에 `AI_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_MODEL`을 추가한 뒤 다시 실행합니다.
-
-### insufficient_quota 오류
-
-아래와 같은 응답은 코드 오류가 아니라 OpenAI API 계정의 결제/쿼터 문제입니다.
-
-```text
-429 TOO_MANY_REQUESTS
-code: insufficient_quota
-```
-
-OpenAI Platform에서 Billing과 Usage Limits를 확인해야 합니다. ChatGPT 구독과 OpenAI API 사용량은 별도입니다.
-
-### API 키 없이 개발하고 싶을 때
-
-기본값인 `dummy` 모드로 실행합니다.
-
-```bash
-./gradlew bootRun
-```
-
-이 모드는 OpenAI API를 호출하지 않고 예시 문제 10개를 생성합니다.
-
-## 주요 URL
-
-```text
-GET  /
-POST /questions/generate
-GET  /api/health
-```
-
-## 현재 동작 흐름
-
-1. 사용자가 `/` 화면에서 시험 범위를 입력합니다.
-2. `POST /questions/generate` 요청이 서버로 전달됩니다.
-3. `QuestionGenerationService`가 설정된 AI 클라이언트를 호출합니다.
-4. `dummy` 모드에서는 예시 문제 10개를 생성합니다.
-5. `openai` 모드에서는 OpenAI Responses API를 호출합니다.
-6. 결과 화면에서 문제, 보기, 정답, 해설을 표시합니다.
+- 문제 난이도 선택 기능
+- 문제 개수 선택 기능
+- 생성된 문제 저장 기능
+- 오답 노트 기능
+- Gemini, Claude, Ollama 등 다른 LLM Provider 추가
