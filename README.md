@@ -179,4 +179,5 @@ OPENAI_MODEL=gpt-5-mini
 - 문제 개수 선택 기능
 - 생성된 문제 저장 기능
 - 오답 노트 기능
+- 외부 API 호출 실패 상황에 대한 예외 처리와 로깅 개선
 - Gemini, Claude, Ollama 등 다른 LLM Provider 추가
